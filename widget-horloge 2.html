@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="fr" translate="no" class="notranslate">
+<head>
+<meta charset="utf-8">
+<meta name="google" content="notranslate">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+<style>
+  :root{--bord:#5a1420;--bord-fonce:#2e0a10;--creme:#f1e8de;--or:#b08a5a}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:#fff}
+  body{font-family:"Cormorant Garamond",Georgia,serif;color:var(--bord);
+       display:flex;align-items:flex-start;justify-content:flex-end;padding:4px 12px;flex-wrap:nowrap}
+  .etoile{flex:none;width:14px;text-align:center;font-size:12px;color:var(--bord-fonce);line-height:1}
+  .espace{flex:none;width:clamp(30px,10vw,180px)}
+  .groupe{display:flex;align-items:center}
+  .arche{position:relative;width:95px;aspect-ratio:23/30;flex:none;border:1.5px solid var(--bord-fonce);
+         border-radius:999px 999px 0 0;padding:4%}
+  .interieur{height:100%;background:var(--creme);border-radius:999px 999px 0 0;
+         display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:8%}
+  .jour{font-size:8px;letter-spacing:1px;color:var(--or);margin-bottom:3px}
+  .grand{font-size:26px;font-weight:600;line-height:1}
+  .sec{font-size:20px;color:var(--or);margin-left:2px}
+  .date,.desc{font-style:italic;font-size:9px;margin-top:10px}
+  .minmax{font-size:9px;margin-top:6px}
+  .lieu{font-size:clamp(9px,1.4vw,14px);margin-top:10px;color:var(--or);letter-spacing:2px}
+  .horloge{width:100%!important;height:auto!important;margin:8% 0 0!important}
+  svg{width:30px;height:30px;margin-bottom:6px}
+</style>
+</head>
+<body>
+ <div class="groupe">
+  <span class="etoile">✦</span>
+  <div class="arche"><div class="interieur">
+    <svg class="horloge" viewBox="0 0 100 100">
+      <line x1="50" y1="7" x2="50" y2="14" transform="rotate(0 50 50)" stroke="#5a1420" stroke-width="2.4" stroke-linecap="round"/><line x1="50" y1="9" x2="50" y2="13" transform="rotate(30 50 50)" stroke="#5a1420" stroke-width="1.8" stroke-linecap="round"/><line x1="50" y1="9" x2="50" y2="13" transform="rotate(60 50 50)" stroke="#5a1420" stroke-width="1.8" stroke-linecap="round"/><line x1="50" y1="7" x2="50" y2="14" transform="rotate(90 50 50)" stroke="#5a1420" stroke-width="2.4" stroke-linecap="round"/><line x1="50" y1="9" x2="50" y2="13" transform="rotate(120 50 50)" stroke="#5a1420" stroke-width="1.8" stroke-linecap="round"/><line x1="50" y1="9" x2="50" y2="13" transform="rotate(150 50 50)" stroke="#5a1420" stroke-width="1.8" stroke-linecap="round"/><line x1="50" y1="7" x2="50" y2="14" transform="rotate(180 50 50)" stroke="#5a1420" stroke-width="2.4" stroke-linecap="round"/><line x1="50" y1="9" x2="50" y2="13" transform="rotate(210 50 50)" stroke="#5a1420" stroke-width="1.8" stroke-linecap="round"/><line x1="50" y1="9" x2="50" y2="13" transform="rotate(240 50 50)" stroke="#5a1420" stroke-width="1.8" stroke-linecap="round"/><line x1="50" y1="7" x2="50" y2="14" transform="rotate(270 50 50)" stroke="#5a1420" stroke-width="2.4" stroke-linecap="round"/><line x1="50" y1="9" x2="50" y2="13" transform="rotate(300 50 50)" stroke="#5a1420" stroke-width="1.8" stroke-linecap="round"/><line x1="50" y1="9" x2="50" y2="13" transform="rotate(330 50 50)" stroke="#5a1420" stroke-width="1.8" stroke-linecap="round"/>
+      <text id="num" x="50" y="68" text-anchor="middle" font-size="9.5" font-weight="600" fill="#5a1420" font-family="Cormorant Garamond,Georgia,serif" letter-spacing=".4">--:--:--</text>
+      <line id="ah" x1="50" y1="50" x2="50" y2="29" stroke="#b08a5a" stroke-width="3" stroke-linecap="round"/>
+      <line id="am" x1="50" y1="50" x2="50" y2="17" stroke="#8a4a55" stroke-width="2.2" stroke-linecap="round"/>
+      <line id="as" x1="50" y1="56" x2="50" y2="14" stroke="#5a1420" stroke-width="1" stroke-linecap="round"/>
+      <circle cx="50" cy="50" r="2.2" fill="#5a1420"/>
+    </svg>
+    <div class="date" id="d"></div>
+  </div></div>
+  <span class="etoile">✦</span>
+ </div>
+
+<script>
+const TZ="Europe/Paris";
+function horloge(){
+  const n=new Date(),o={timeZone:TZ};
+  const p=new Intl.DateTimeFormat("fr-FR",{...o,hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}).formatToParts(n);
+  const g=t=>+p.find(x=>x.type===t).value;
+  const H=g("hour")%24,M=g("minute"),S=g("second");
+  document.getElementById("ah").setAttribute("transform",`rotate(${(H%12)*30+M*0.5} 50 50)`);
+  document.getElementById("am").setAttribute("transform",`rotate(${M*6+S*0.1} 50 50)`);
+  document.getElementById("as").setAttribute("transform",`rotate(${S*6} 50 50)`);
+  const z=v=>String(v).padStart(2,"0");
+  document.getElementById("num").textContent=`${z(H)}:${z(M)}:${z(S)}`;
+  const x=n.toLocaleDateString("fr-FR",{...o,weekday:"long",day:"numeric",month:"long"});
+  document.getElementById("d").textContent=x[0].toUpperCase()+x.slice(1);
+}
+horloge();setInterval(horloge,1000);
+
+
+</script>
+</body>
+</html>

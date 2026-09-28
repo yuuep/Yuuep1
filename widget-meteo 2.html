@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="fr" translate="no" class="notranslate">
+<head>
+<meta charset="utf-8">
+<meta name="google" content="notranslate">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+<style>
+  :root{--bord:#5a1420;--bord-fonce:#2e0a10;--creme:#f1e8de;--or:#b08a5a}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:#fff}
+  body{font-family:"Cormorant Garamond",Georgia,serif;color:var(--bord);
+       display:flex;align-items:flex-start;justify-content:flex-start;padding:4px 12px;flex-wrap:nowrap}
+  .etoile{flex:none;width:14px;text-align:center;font-size:12px;color:var(--bord-fonce);line-height:1}
+  .espace{flex:none;width:clamp(30px,10vw,180px)}
+  .groupe{display:flex;align-items:center}
+  .arche{position:relative;width:120px;aspect-ratio:23/30;flex:none;border:1.5px solid var(--bord-fonce);
+         border-radius:999px 999px 0 0;padding:4%}
+  .interieur{height:100%;background:var(--creme);border-radius:999px 999px 0 0;
+         display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:8%}
+  .jour{font-size:8px;letter-spacing:1px;color:var(--or);margin-bottom:3px}
+  .grand{font-size:26px;font-weight:600;line-height:1}
+  .sec{font-size:20px;color:var(--or);margin-left:2px}
+  .date,.desc{font-style:italic;font-size:12px;margin-top:10px}
+  .minmax{font-size:9px;margin-top:6px}
+  .lieu{font-size:clamp(9px,1.4vw,14px);margin-top:10px;color:var(--or);letter-spacing:2px}
+  .horloge-bloc{flex:none;width:min(260px,28vw);aspect-ratio:1}
+  .horloge{width:100%!important;height:100%!important;margin:0!important}
+  svg{width:30px;height:30px;margin-bottom:6px}
+</style>
+</head>
+<body>
+ <div class="groupe">
+  <span class="etoile">✦</span>
+  <div class="arche"><div class="interieur">
+    <div class="jour">AUJOURD'HUI</div>
+    <svg id="i0" viewBox="0 0 64 64"></svg>
+    <div class="grand" id="t0">--°</div>
+    <div class="desc" id="w0">Chargement…</div>
+    <div class="minmax" id="m0"></div>
+  </div></div>
+  <span class="etoile">✦</span>
+
+  <div class="arche"><div class="interieur">
+    <div class="jour">DEMAIN</div>
+    <svg id="i1" viewBox="0 0 64 64"></svg>
+    <div class="grand" id="t1">--°</div>
+    <div class="desc" id="w1"></div>
+    <div class="minmax" id="m1"></div>
+  </div></div>
+  <span class="etoile">✦</span>
+ </div>
+
+<script>
+/* soleil jaune, nuages blancs, orage et pluie en gris */
+const SOL='<g stroke="#e8b92f" stroke-width="3" stroke-linecap="round"><path d="M22 6v6M22 38v6M4 22h6M34 22h6M9 9l4 4M31 31l4 4M9 35l4-4M31 13l4-4"/></g><circle cx="22" cy="22" r="9" fill="#f5c842"/>';
+const NUAGE='<path d="M20 50h28a10 10 0 0 0 0-20 14 14 0 0 0-27-3 11 11 0 0 0-1 23z" fill="#fff" stroke="#c9bfb5" stroke-width="2"/>';
+const PLUIE='<path d="M26 54l-3 7M36 54l-3 7M46 54l-3 7" stroke="#8a8a8a" stroke-width="3" stroke-linecap="round"/>';
+const ECLAIR='<path d="M38 46l-7 10h7l-5 8" fill="none" stroke="#7a7a7a" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>';
+const NEIGE='<g fill="#9aa7b3"><circle cx="26" cy="57" r="2.5"/><circle cx="36" cy="60" r="2.5"/><circle cx="46" cy="57" r="2.5"/></g>';
+const BRUME='<path d="M10 30h44M6 40h52M12 50h40" stroke="#a9a9a9" stroke-width="3.5" stroke-linecap="round"/>';
+function meteo(c){
+  if(c===0) return ["Ensoleillé",'<g transform="translate(10 10)">'+SOL+'</g>'];
+  if(c<=2) return ["Éclaircies",SOL+NUAGE];
+  if(c===3) return ["Nuageux",NUAGE];
+  if(c<=48) return ["Brouillard",BRUME];
+  if(c<=67||(c>=80&&c<=82)) return ["Pluie",NUAGE+PLUIE];
+  if(c<=77||c===85||c===86) return ["Neige",NUAGE+NEIGE];
+  return ["Orage",NUAGE+ECLAIR];
+}
+async function charger(){
+  try{
+    const r=await fetch("https://api.open-meteo.com/v1/forecast?latitude=43.6047&longitude=1.4442&current=temperature_2m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=Europe%2FParis&forecast_days=2");
+    const j=await r.json();
+    for(const k of [0,1]){
+      const [txt,svg]=meteo(j.daily.weather_code[k]);
+      document.getElementById("i"+k).innerHTML=svg;
+      document.getElementById("w"+k).textContent=txt;
+      document.getElementById("t"+k).textContent=Math.round(k===0?j.current.temperature_2m:j.daily.temperature_2m_max[k])+"°";
+      document.getElementById("m"+k).textContent="Min "+Math.round(j.daily.temperature_2m_min[k])+"°  —  Max "+Math.round(j.daily.temperature_2m_max[k])+"°";
+    }
+  }catch(e){ w0.textContent="Météo indisponible"; }
+}
+charger();setInterval(charger,30*60*1000);
+</script>
+</body>
+</html>
